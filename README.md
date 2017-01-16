@@ -10,7 +10,8 @@ which automates repetitive DevOps tasks encountered over at Nopain Products.
 For Nopain, LLC use only.
 * Version
 0.0.1
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Nopain Products and Gains Research Group
+[Visit Nopain&Gains, LLC](https://npgains.com)
 
 ### How do I get set up? ###
 
