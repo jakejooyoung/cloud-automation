@@ -4,16 +4,22 @@ This README would normally document whatever steps are necessary to get your app
 
 ### What is this repository for? ###
 
-* Quick summary
-- Cloud Automation is an admin tool developed and owned by the Gains Research Group,
-which automates repetitive DevOps tasks encountered over at Nopain Products.
-- For Nopain, LLC use only.
+Quick summary
 
-* Version
-- 0.0.1
+* **Cloud Automation** is an admin tool developed and owned by the Gains Research Group
+that automates repetitive DevOps tasks encountered over at Nopain, LLC in launching new products.
+* Intended for Nopain, LLC use only.
 
-* For more information about the relationship between Nopain Products & Gains Research Group
-- [visit npgains.com](https://npgains.com)
+Version
+
+* 0.0.1
+
+Company:
+
+* For more information about the relationship between Nopain Products & Gains Research Group [visit npgains.com](https://npgains.com)
+
+
+
 
 ### How do I get set up? ###
 
