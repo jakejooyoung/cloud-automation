@@ -26,22 +26,21 @@ function success(){
 trap '[[ -z $1 || -z $2 ]] && missingarg' EXIT
 if [[ -z $1 || -z $2 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' EXIT
+
 function create_hosted_zone_for_domain(){
 	echo "Creating a hosted zone for domain"
 	created_hosted_zone=$(aws route53 create-hosted-zone \
-		--name $dn \
-		--caller-reference $(date +%Y-%m-%d:%H:%M:%S) \
-		| jq -r '.HostedZone .Id')
+	--name $dn --caller-reference $(date +%Y-%m-%d:%H:%M:%S)\
+	| jq -r '.HostedZone .Id')
 }
 function delete_all_zones_and_records_for_domain() {
-	#Checks and deletes all zones and records for this domain
 	sh $(dirname $0)/delete-all-zones-and-records.sh $dn
 }
 function prepare_upsert_for_a_and_cname(){
-	# Returns a JSON formatted upsert request for A and CNAME record sets
-	# domain.com routes to Elastic IP
-	# www.domain.com routes to domain.com
-	arec_cname_upsert_rqst=$(sh $(dirname $0)/prepare-upsert-for-a-and-cname.sh $dn $eip_public_ip)	
+	# Make A and CNAME record sets rqst in JSON
+	arec_cname_upsert_rqst=$(sh \
+	$(dirname $0)/prepare-upsert-for-a-and-cname.sh \
+	$dn $eip_public_ip)	
 }
 function update_record_set(){
 	sh $(dirname $0)/update-record-set.sh $1 $2
@@ -50,11 +49,13 @@ function initialize_zone_with_a_and_cname_records(){
 	delete_all_zones_and_records_for_domain 
 	create_hosted_zone_for_domain
 	prepare_upsert_for_a_and_cname
-	update_record_set $created_hosted_zone $arec_cname_upsert_rqst
+	update_record_set \
+	$created_hosted_zone $arec_cname_upsert_rqst
 }
 
 dn=$1; eip_public_ip=$2
-initialize_zone_with_a_and_cname_records $dn $eip_public_ip
+initialize_zone_with_a_and_cname_records \
+$dn $eip_public_ip
 
 exit 0
 
