@@ -54,8 +54,7 @@ function delete_all_zones_for_this_domain(){
 	done
 }
 function 	delete_all_records_for_zone(){
-	local spin='-\|/'; local i=0; 
-	local pids=""; local result=0;
+	local pids="";
 	local zid=$1; 
 	echo "Deleting all record sets for zone: $zid..."
 	aws route53 list-resource-record-sets \
