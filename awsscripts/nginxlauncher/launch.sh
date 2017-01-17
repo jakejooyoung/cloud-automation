@@ -1,4 +1,4 @@
-#!/bin/bash -eou pipefail
+#!/bin/bash -eo pipefail
 #
 # Launch NGINX EC2
 # Alloc&assign ELASTIC IP.
@@ -35,50 +35,51 @@ function success(){
 	\n"
 	#Debug 
 	#rollsback changes after test
-	# rollback \
-	# && echo 'Success!'
+	rollback \
+	&& echo 'Success!'
 }
 #####
-trap '[[ -z $1 ]] && missingarg' EXIT
+trap '[[ -z $1 ]] && missingarg $LINENO' EXIT
 if [[ -z $1 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' SIGINT EXIT
 function launch(){
 	echo "Launching & Configuring Nginx..."
+
 	launch_response=$(aws ec2 run-instances \
 	--image-id ami-6e165d0e \
-	--count 1 \
-	--instance-type t2.micro \
+	--count 1 --instance-type t2.micro \
 	--iam-instance-profile Name="ssl-profile" \
 	--key-name FounderKey \
 	--security-groups nginx-full jkmba-ssh \
-	--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh -)")
-	ec2_id=$(echo $launch_response \
-		| jq -r ".Instances[] | .InstanceId")
+	--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh -)")\
+	&&ec2_id=$(echo $launch_response | 
+		jq -r ".Instances[] | .InstanceId")
+}
+function create-tags(){
+	aws ec2 create-tags --resources $ec2_id \
+		--tags Key=Name,Value=$1
+}
+function wait_for_instance(){
 	aws ec2 wait instance-running \
 		--instance-ids $ec2_id \
-	&& echo "${GREEN}EC2 (Id: $ec2_id) is up and running.${RESET}"
-	aws ec2 create-tags \
-		--resources $ec2_id \
-		--tags Key=Name,Value=reverseProxy
+	&& echo "${GREEN}EC2 $ec2_id is running.${RESET}"
 }
 function allocate_eip(){
 	echo 'Allocating EIP...'
-	allocation=$(aws ec2 allocate-address \
-		--domain vpc)
-	alloc_id=$(echo $allocation | jq -r '.AllocationId')
+	allocation=$(aws ec2 allocate-address --domain vpc) \
+	&& alloc_id=$(echo $allocation | jq -r '.AllocationId')
 }
 function associate_eip(){
-	echo 'Associating EIP...'
+	echo "Associating EIP with $ec2_id"
 	association=$(aws ec2 associate-address \
-		--instance-id $ec2_id \
-		--allocation-id $alloc_id) 
-	assoc_id=$(echo $association | jq -r '.AssociationId')
+		--instance-id $ec2_id\
+		--allocation-id $alloc_id) \
+	&& assoc_id=$(echo $association | jq -r '.AssociationId')
 }
 function parse_public_ip(){
 	eip_public_ip=$(aws ec2 describe-addresses \
-	--allocation-ids $alloc_id \
-	| jq -r ".Addresses \
-	| .[] | .PublicIp") 
+	--allocation-ids $alloc_id | 
+	jq -r ".Addresses | .[] | .PublicIp") 
 }
 function configure_route53(){
 	sh $(dirname $0)/configure-route53.sh \
@@ -86,10 +87,12 @@ function configure_route53(){
 }
 
 domain_name=$1
-launch
-allocate_eip
-associate_eip
-parse_public_ip
-configure_route53
+
+launch && wait_for_instance \
+&& create-tags "$domain_name-nginx" \
+&& allocate_eip \
+&& associate_eip \
+&& parse_public_ip\
+&& configure_route53 
 
 exit 0
