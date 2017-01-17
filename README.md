@@ -1,20 +1,18 @@
-# README #
+# Core Engine : Cloud Automation #
 
 This README would normally document whatever steps are necessary to get your application up and running.
 
-### What is this repository for? ###
+**Quick summary**
 
-Quick summary
-
-* **Cloud Automation** is an admin tool developed and owned by the Gains Research Group
+* Cloud Automation is an admin tool developed and owned by the Gains Research Group
 that automates repetitive DevOps tasks encountered over at Nopain, LLC in launching new products.
 * Intended for Nopain, LLC use only.
 
-Version
+**Version**
 
 * 0.0.1
 
-Company:
+**Company:**
 
 * For more information about the relationship between Nopain Products & Gains Research Group [visit npgains.com](https://npgains.com)
 
