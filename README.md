@@ -2,7 +2,6 @@
 **Quick summary:**
 Core Engine is a suite of administrative tools that automate repetitive DevOps tasks routinely encountered by Nopain, LLC in launching new products.
 
-
 *This repository is developed, owned and maintained by the Gains Research Group and is intended for authorized Nopain, LLC use only.*
 
 # Cloud Automation #
