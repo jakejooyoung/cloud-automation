@@ -1,20 +1,19 @@
-# Core Engine : Cloud Automation #
+# Core Engine #
+**Quick summary:**
+Core Engine is a suite of administrative tools that automate repetitive DevOps tasks routinely encountered by Nopain, LLC in launching new products.
 
-This README would normally document whatever steps are necessary to get your application up and running.
 
-**Quick summary**
+*This repository is developed, owned and maintained by the Gains Research Group and is intended for authorized Nopain, LLC use only.*
 
-* Cloud Automation is an admin tool developed and owned by the Gains Research Group
-that automates repetitive DevOps tasks encountered over at Nopain, LLC in launching new products.
-* Intended for Nopain, LLC use only.
+# Cloud Automation #
+**Quick summary:**
+This repository launches and configures a cloud infrastructure that's immediately scalable and secure.
 
-**Version**
-
-* 0.0.1
+**Version:**
+0.0.1
 
 **Company:**
-
-* For more information about the relationship between Nopain Products & Gains Research Group [visit npgains.com](https://npgains.com)
+For more information about the relationship between Nopain Products & Gains Research Group [visit npgains.com](https://npgains.com)
 
 
 
