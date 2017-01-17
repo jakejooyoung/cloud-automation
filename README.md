@@ -2,8 +2,6 @@
 **Quick summary:**
 Core Engine is a suite of administrative tools that automate repetitive DevOps tasks routinely encountered by Nopain, LLC in launching new products.
 
-*This repository is developed, owned and maintained by the Gains Research Group and is intended for authorized Nopain, LLC use only.*
-
 # Cloud Automation #
 **Quick summary:**
 This repository launches and configures a cloud infrastructure that's immediately scalable and secure.
@@ -32,9 +30,9 @@ For more information about the relationship between Nopain Products & Gains Rese
 * Code review
 * Other guidelines
 
+*This repository is developed, owned and maintained by the Gains Research Group and is intended for authorized Nopain, LLC use only.*
+
 ### Who do I talk to? ###
 
-* Repo owner or admin
-* Other community or team contact
 Admin: Jake Kim 
 Email: jake@npgains.com
