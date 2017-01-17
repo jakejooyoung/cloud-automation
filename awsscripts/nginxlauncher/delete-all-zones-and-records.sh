@@ -29,7 +29,7 @@ function list_all_zones_for_domain(){
 	echo "Found zones for this domain."
 }
 function delete_all_zones_for_this_domain(){
-	local dn=$1; 
+	local dn=$1; local processes="";
 	list_all_zones_for_domain $dn
 	echo "Deleting all hosted zones for domain: $dn..."
 	for zid in $(echo $zone_list \
@@ -43,18 +43,17 @@ function delete_all_zones_for_this_domain(){
 			| jq -r '.ChangeInfo.Status')=="INSYNC" ]; do
 		 	echo "Trying..."
 			sleep 0.5
-		done)&
-		prids="$prids $!"
-		echo "Deleted zone $zid"
-		echo "Change id: $deletion_id"
+		done \
+		&&echo "Change id: $deletion_id")\
+		&&echo "Deleted zone $zid"\
+		& processes="$processes $!"
 	done
-	for prid in $prids; do
-	  wait $prid || let "result=1"
+	for p in $processes; do
+	  wait $p || let "result=1"
 	  if [ "$result" == "1" ]; then exit 1; fi
 	done
 }
 function 	delete_all_records_for_zone(){
-	local pids="";
 	local zid=$1; 
 	echo "Deleting all record sets for zone: $zid..."
 	aws route53 list-resource-record-sets \
@@ -73,11 +72,11 @@ function 	delete_all_records_for_zone(){
 				 	echo "Trying..."
 				 	sleep 0.5
 				done) &
-				wait $pid || let "result=1"
+				wait $! || let "result=1"
 			  if [ "$result" == "1" ]; then exit 1; fi
 	  	fi 
 		done
 }	
-prids=""; result=""
+result=""
 delete_all_zones_for_this_domain $1
 exit 0
