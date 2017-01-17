@@ -21,17 +21,15 @@ if [[ -z $1 || -z $2 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || err_report $LINENO' EXIT
 function submit_record_change(){
 	local zid=$1; local req=$2; local submission;
-	submission=$(aws route53 \
-		change-resource-record-sets \
-		--hosted-zone-id $zid \
-		--change-batch $req) || exit $?
-	local change_id=$(echo $submission | jq -r '.ChangeInfo.Id' | cut -d'/' -f3) 
+	local spin='-\|/'; local i=0; local change_id;
+	submission=$(aws route53 change-resource-record-sets \
+		--hosted-zone-id $zid --change-batch $req) || exit $?
+	change_id=$(echo $submission \
+		| jq -r '.ChangeInfo.Id' | cut -d'/' -f3) 
+	printf "\e[?25l${YELLOW}"
 	echo "Waiting for all Route53 DNS to be in sync..." 
-	local spin='-\|/'
-	local i=0
-	printf "\e[?25l ${YELLOW}\n"
-	until [[ $(aws route53 get-change --id $change_id | jq -r '.ChangeInfo.Status') == "INSYNC" ]];
-	do
+	until [ $(aws route53 get-change --id $change_id \
+		| jq -r '.ChangeInfo.Status')=="INSYNC" ]; do
 	 	i=$(( (i+1) %4 ))
 	  printf "\r [${spin:$i:1}]"
 	  sleep 0.3

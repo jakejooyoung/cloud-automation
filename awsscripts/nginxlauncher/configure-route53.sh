@@ -30,8 +30,8 @@ trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' EXIT
 function create_hosted_zone_for_domain(){
 	echo "Creating a hosted zone for domain"
 	created_hosted_zone=$(aws route53 create-hosted-zone \
-	--name $dn --caller-reference $(date +%Y-%m-%d:%H:%M:%S)\
-	| jq -r '.HostedZone .Id')
+		--name $dn --caller-reference $(date +%Y-%m-%d:%H:%M:%S)\
+		| jq -r '.HostedZone .Id')
 }
 function delete_all_zones_and_records_for_domain() {
 	sh $(dirname $0)/delete-all-zones-and-records.sh $dn

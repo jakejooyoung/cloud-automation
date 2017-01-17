@@ -24,7 +24,7 @@ function cleanup(){
 }
 function success(){
 	printf "\
-	\n${GREEN}[SUCCESS]${RESET}\
+	${GREEN}[SUCCESS]${RESET} ${0##*/}\
 	\nNginx launch & configuration\
 	\nwere successful.\
 	\nEC2 Id     : '$ec2_id'\
@@ -42,16 +42,16 @@ function success(){
 trap '[[ -z $1 ]] && missingarg $LINENO' EXIT
 if [[ -z $1 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' SIGINT EXIT
+
 function launch(){
 	echo "Launching & Configuring Nginx..."
-
 	launch_response=$(aws ec2 run-instances \
-	--image-id ami-6e165d0e \
-	--count 1 --instance-type t2.micro \
-	--iam-instance-profile Name="ssl-profile" \
-	--key-name FounderKey \
-	--security-groups nginx-full jkmba-ssh \
-	--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh -)")\
+		--image-id ami-6e165d0e \
+		--count 1 --instance-type t2.micro \
+		--iam-instance-profile Name="ssl-profile" \
+		--key-name FounderKey \
+		--security-groups nginx-full jkmba-ssh \
+		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh -)")\
 	&&ec2_id=$(echo $launch_response | 
 		jq -r ".Instances[] | .InstanceId")
 }
@@ -60,8 +60,7 @@ function create-tags(){
 		--tags Key=Name,Value=$1
 }
 function wait_for_instance(){
-	aws ec2 wait instance-running \
-		--instance-ids $ec2_id \
+	aws ec2 wait instance-running --instance-ids $ec2_id \
 	&& echo "${GREEN}EC2 $ec2_id is running.${RESET}"
 }
 function allocate_eip(){
@@ -72,14 +71,13 @@ function allocate_eip(){
 function associate_eip(){
 	echo "Associating EIP with $ec2_id"
 	association=$(aws ec2 associate-address \
-		--instance-id $ec2_id\
-		--allocation-id $alloc_id) \
+		--instance-id $ec2_id --allocation-id $alloc_id) \
 	&& assoc_id=$(echo $association | jq -r '.AssociationId')
 }
 function parse_public_ip(){
 	eip_public_ip=$(aws ec2 describe-addresses \
-	--allocation-ids $alloc_id | 
-	jq -r ".Addresses | .[] | .PublicIp") 
+		--allocation-ids $alloc_id \
+		| jq -r ".Addresses | .[] | .PublicIp") 
 }
 function configure_route53(){
 	sh $(dirname $0)/configure-route53.sh \
