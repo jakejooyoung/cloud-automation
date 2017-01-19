@@ -1,10 +1,8 @@
 # Core Engine #
-### Quick Summary: ###
 
 Core Engine is a suite of administrative tools that automate repetitive DevOps tasks routinely encountered by Nopain, LLC in launching new products.
 
 # Cloud Automation #
-### Quick Summary: ###
 
 This repository launches and configures a cloud infrastructure that's immediately scalable and secure.
 
