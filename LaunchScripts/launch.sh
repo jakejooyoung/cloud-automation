@@ -24,19 +24,19 @@ function cleanup(){
 }
 function success(){
 	printf "\
-	\n${GREEN}[SUCCESS]${RESET} ${0##*/}\
+	${GREEN}[SUCCESS]${RESET}${0##*/}\
 	\nNginx launch & configuration\
 	\nwere successful.\
 	\nEC2 Id     : '$ec2_id'\
 	\nAlloc Id   : '$alloc_id'\
 	\nAssoc Id   : '$assoc_id'\
-	\nEIP Public : '$eip_public_ip'\
+	\nEIP zPublic : '$eip_public_ip'\
 	\nDomain Name: '$domain_name'\
 	\n"
 	#Debug 
 	#rollsback changes after test
-	rollback \
-	&& echo 'Success!'
+	# rollback \
+	# && echo 'Success!'
 }
 #####
 trap '[[ -z $1 ]] && missingarg $LINENO' EXIT
