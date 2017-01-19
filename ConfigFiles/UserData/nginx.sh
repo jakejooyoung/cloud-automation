@@ -17,7 +17,7 @@ pip install awscli
 apt-get install -y nginx
 apt-get install -y letsencrypt 
 
-export DOMAIN="bitcoinnow.org"
+export DOMAIN="domain_placeholder"
 export EMAIL="jakejooyoung@gmail.com"
 export DOMAINS="$DOMAIN"', www.'"$DOMAIN"
 
