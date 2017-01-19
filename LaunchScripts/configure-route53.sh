@@ -9,17 +9,17 @@ export YELLOW=`tput setaf 3`
 export RESET=`tput sgr0`
 
 function missingarg(){
-	echo "${RED}[ERROR] MISSING ARGS${RESET} ${0##*/}"
+	echo "${RED}[ERROR] MISSING ARGS${RESET}${0##*/}"
 	exit 1
 }
 function cleanup(){
-	echo "${RED}[ERROR]${RESET} ${0##*/}:$1"
+	echo "${RED}[ERROR]${RESET}${0##*/}:$1"
 	echo "Reversing any changes made..."
 	delete_all_zones_and_records_for_domain 
   exit 1
 }
 function success(){
-	echo "${GREEN}[SUCCESS]${RESET} ${0##*/}"
+	echo "${GREEN}[SUCCESS]${RESET}${0##*/}"
 	exit 0
 }
 ####
@@ -39,8 +39,8 @@ function delete_all_zones_and_records_for_domain() {
 function prepare_upsert_for_a_and_cname(){
 	# Make A and CNAME record sets rqst in JSON
 	arec_cname_upsert_rqst=$(sh \
-	$(dirname $0)/prepare-upsert-for-a-and-cname.sh \
-	$dn $eip_public_ip)	
+		$(dirname $0)/prepare-upsert-for-a-and-cname.sh \
+		$dn $eip_public_ip)	
 }
 function update_record_set(){
 	sh $(dirname $0)/update-record-set.sh $1 $2
@@ -49,10 +49,39 @@ function initialize_zone_with_a_and_cname_records(){
 	delete_all_zones_and_records_for_domain 
 	create_hosted_zone_for_domain
 	prepare_upsert_for_a_and_cname
-	update_record_set \
-	$created_hosted_zone $arec_cname_upsert_rqst
+	update_record_set $created_hosted_zone $arec_cname_upsert_rqst
+	get_hosted_zone_nameservers
+	update_route53_domain_nameservers
 }
-
+# function get_domain_ns_whois(){
+# 	nameservers=$(whois $dn | grep 'Name Server' | head -4 | sed 's@Name Server: @ @g')
+# 	formatted="";
+# 	for i in $nameservers; do formatted+="{\"Name\":\"$i\"}"; done
+# 	formatted="["$(echo $formatted | sed 's@"}{"@"},{"@g')"]"
+# 	echo $formatted
+# }
+function get_hosted_zone_nameservers(){
+	formatted='';
+	ns=$(aws route53 get-hosted-zone \
+		--id $created_hosted_zone\
+		| jq -r .DelegationSet.NameServers[])
+	for i in $ns; do formatted+="{\"Name\":\"$i\"}"; done
+	formatted="["$(echo $formatted | sed 's@"}{"@"},{"@g')"]"
+	echo $formatted
+}
+function update_route53_domain_nameservers(){
+	opid=$(aws --region=us-east-1 \
+		route53domains update-domain-nameservers       \
+		--domain-name $dn --nameservers $formatted     \
+		--output text --query 'OperationId')|| exit $? \
+	&& echo $opid   \
+	&& until aws \
+	 	--region=us-east-1 route53domains get-operation-detail  \
+	 	--operation-id $opid --query 'Status' | grep -m 1 "SUCCESSFUL"; do 
+	 	sleep 5
+	 	echo "Waiting for DNS to update..."
+	done
+}
 dn=$1; eip_public_ip=$2
 initialize_zone_with_a_and_cname_records \
 $dn $eip_public_ip
