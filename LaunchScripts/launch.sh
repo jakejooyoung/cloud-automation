@@ -35,7 +35,7 @@ function success(){
 	\n"
 	#Debug 
 	#rollsback changes after test
-	# rollback \
+	# rollback \	
 	# && echo 'Success!'
 }
 #####
@@ -51,7 +51,8 @@ function launch(){
 		--iam-instance-profile Name="ssl-profile" \
 		--key-name FounderKey \
 		--security-groups nginx-full jkmba-ssh \
-		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh -)")\
+		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh - \
+			| sed "s/domain_placeholder/$domain_name/g")")\
 	&&ec2_id=$(echo $launch_response | 
 		jq -r ".Instances[] | .InstanceId")
 }
