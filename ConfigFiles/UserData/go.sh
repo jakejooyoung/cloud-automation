@@ -10,11 +10,14 @@ echo END
 add-apt-repository ppa:ubuntu-lxc/lxd-stable
 apt-get update
 apt-get install -y golang
-mkdir $HOME/work
-export GOPATH=$HOME/work
-export PATH=$PATH:$GOPATH/bin
-export GOBIN=$GOPATH/bin
-mkdir -p $GOPATH/src/gainsrg.com/coreengine/app
+
+mkdir home/ubuntu/work
+cat >/etc/profile.d/ <<EOL
+export GOPATH=/home/ubuntu/work
+export PATH=$PATH:/work/bin
+export GOBIN=/work/bin
+EOL
+mkdir -p /home/ubuntu/work/src/gainsrg.com/coreengine/app
 
 exit 0
  
