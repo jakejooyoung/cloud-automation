@@ -31,7 +31,7 @@ chgrp www-data /var/www/letsencrypt/
 nginx -t && nginx -s reload
 #Download letsencrypt config file from s3
 mkdir -p /etc/letsencrypt/
-(aws s3 cp s3://npgains.letsencrypt.global.ini - | sed -e 's#$DOMAINS#'"$DOMAINS"'#' -e 's#$EMAIL#'"$EMAIL"'#')> /etc/letsencrypt/cli.ini
+(aws s3 cp s3://npgains.letsencrypt/global.ini - | sed -e 's#$DOMAINS#'"$DOMAINS"'#' -e 's#$EMAIL#'"$EMAIL"'#')> /etc/letsencrypt/cli.ini
 #Request SSL certification from letsencrypt
 letsencrypt certonly -c /etc/letsencrypt/cli.ini
 #Configure nginx server block for SSL
