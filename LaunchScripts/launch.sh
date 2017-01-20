@@ -23,8 +23,7 @@ function cleanup(){
 	exit 1
 }
 function success(){
-	printf "${GREEN}\
-	[SUCCESS]${RESET}${0##*/}\
+	printf "${GREEN}[SUCCESS]${RESET}${0##*/}\
 	\nNginx launch & configuration\
 	\nwere successful.\
 	\nEC2 Id     : '$ec2_id'\

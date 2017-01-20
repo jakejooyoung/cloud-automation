@@ -34,8 +34,8 @@ function submit_record_change(){
 	 	echo "Trying..."
 		sleep 0.5
 	done
-	printf "\e[?25h ${RESET}"
-	echo "${GREEN}Change id: $change_id${RESET}"
+	printf "\e[?25h ${RESET}${GREEN}"
+	echo "Route 53 sync id: $change_id${RESET}"
 }
 submit_record_change $1 $2
 exit 0
