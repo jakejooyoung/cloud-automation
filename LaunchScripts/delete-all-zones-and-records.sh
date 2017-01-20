@@ -61,7 +61,7 @@ function 	delete_all_records_for_zone(){
 	| while read -r rec; do
 			read -r name type <<< $(jq -r '.Name,.Type' <<< "$rec")
 		  if [ $type != "NS" -a $type != "SOA" ]; then
-		  	echo "${YELLOW}Entered"
+		  	echo "${YELLOW}Change process entered for $rec..."
 		    (change_id=$(aws route53 change-resource-record-sets \
 		      --hosted-zone-id $zid --change-batch '{"Changes":
 		      [{"Action":"DELETE","ResourceRecordSet":'"$rec"'}]}' \
