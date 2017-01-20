@@ -35,14 +35,14 @@ mkdir -p /etc/letsencrypt/
 (aws s3 cp s3://npgains.letsencrypt/cli.ini - | sed -e 's#$DOMAINS#'"$DOMAINS"'#' -e 's#$EMAIL#'"$EMAIL"'#')> /etc/letsencrypt/cli.ini
 #Request SSL certification from letsencrypt
 letsencrypt certonly -c /etc/letsencrypt/cli.ini
-#Configure nginx server block for SSL
-(aws s3 cp s3://npgains.nginxconfig/aftercert - | sed -e 's#$DOMAIN#'"$DOMAIN"'#')> /etc/nginx/sites-available/default
+#Create file to manage cert paths
 cat >/etc/nginx/snippets/ssl-$DOMAIN.conf <<EOL
 ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
 ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
 EOL
-(aws s3 cp s3://npgains.nginxconfig/sslparams - )\
-	> /etc/nginx/snippets/ssl-params.conf
+#Configure nginx server block accordingly for SSL
+(aws s3 cp s3://npgains.nginxconfig/aftercert - | sed -e 's#$DOMAIN#'"$DOMAIN"'#')> /etc/nginx/sites-available/default
+(aws s3 cp s3://npgains.nginxconfig/sslparams - )> /etc/nginx/snippets/ssl-params.conf
 #reload nginx
 nginx -t && nginx -s reload
 
