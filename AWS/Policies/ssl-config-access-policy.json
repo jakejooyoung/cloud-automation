@@ -5,7 +5,7 @@
 			"Effect": "Allow",
 			"Action": ["s3:*"],
 			"Resource": [
-				"arn:aws:s3:::npgains.sslconfig/*",
+				"arn:aws:s3:::npgains.letsencrypt/*",
 				"arn:aws:s3:::npgains.nginxconfig/*"
 			]
     }
