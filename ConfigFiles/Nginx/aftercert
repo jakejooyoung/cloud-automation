@@ -1,0 +1,31 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name $DOMAIN www.$DOMAIN;
+    return 301 https://$DOMAIN$request_uri;
+}
+server {
+
+    # SSL configuration
+
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    include snippets/ssl-$DOMAIN.conf;
+    include snippets/ssl-params.conf;
+    
+    root /var/www/html;
+    index index.html index.htm;
+
+    location /.well-known/acme-challenge {
+      root /var/www/letsencrypt;
+    }
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
