@@ -26,12 +26,16 @@ mkdir -p /var/www/letsencrypt/.well-known/acme-challenge/
 chgrp www-data /var/www/letsencrypt/
 (aws s3 cp s3://npgains.nginxconfig/beforecert - | sed 's#$DOMAIN#'"$DOMAIN"'#') > /etc/nginx/sites-available/default
 nginx -t && nginx -s reload
-
 mkdir -p /etc/letsencrypt/
-(aws s3 cp s3://npgains.sslconfig/global.ini - | sed -e 's#$DOMAINS#'"$DOMAINS"'#' -e 's#$EMAIL#'"$EMAIL"'#') > /etc/letsencrypt/cli.ini
+(aws s3 cp s3://npgains.letsencrypt.global.ini - | sed -e 's#$DOMAINS#'"$DOMAINS"'#' -e 's#$EMAIL#'"$EMAIL"'#')	> /etc/letsencrypt/cli.ini
 letsencrypt certonly -c /etc/letsencrypt/cli.ini
 
-echo BEGIN
+echo "ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;\
+\nssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;"\
+> /etc/nginx/snippets/ssl-$DOMAIN.conf
+(aws s3 cp s3://npgains.nginxconfig/aftercert.ini - | sed -e 's#$DOMAIN#'"$DOMAIN"'#') > /etc/nginx/sites-available/default
+openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+nginx -t && nginx -s reload
 "Exiting..."
 date '+%Y-%m-%d %H:%M:%S'
 echo END
