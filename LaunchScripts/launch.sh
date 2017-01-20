@@ -23,8 +23,8 @@ function cleanup(){
 	exit 1
 }
 function success(){
-	printf "\
-	${GREEN}[SUCCESS]${RESET}${0##*/}\
+	printf "${GREEN}\
+	[SUCCESS]${RESET}${0##*/}\
 	\nNginx launch & configuration\
 	\nwere successful.\
 	\nEC2 Id     : '$ec2_id'\
@@ -43,7 +43,7 @@ trap '[[ -z $1 ]] && missingarg $LINENO' EXIT
 if [[ -z $1 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' SIGINT EXIT
 
-function launch(){
+function launch_instance(){
 	echo "Launching & Configuring Nginx..."
 	launch_response=$(aws ec2 run-instances \
 		--image-id ami-6e165d0e \
@@ -56,7 +56,7 @@ function launch(){
 	&&ec2_id=$(echo $launch_response | 
 		jq -r ".Instances[] | .InstanceId")
 }
-function create-tags(){
+function create_tag(){
 	aws ec2 create-tags --resources $ec2_id \
 		--tags Key=Name,Value=$1
 }
@@ -69,12 +69,6 @@ function allocate_eip(){
 	allocation=$(aws ec2 allocate-address --domain vpc) \
 	&& alloc_id=$(echo $allocation | jq -r '.AllocationId')
 }
-function associate_eip(){
-	echo "Associating EIP with $ec2_id"
-	association=$(aws ec2 associate-address \
-		--instance-id $ec2_id --allocation-id $alloc_id) \
-	&& assoc_id=$(echo $association | jq -r '.AssociationId')
-}
 function parse_public_ip(){
 	eip_public_ip=$(aws ec2 describe-addresses \
 		--allocation-ids $alloc_id \
@@ -84,14 +78,18 @@ function configure_route53(){
 	sh $(dirname $0)/configure-route53.sh \
 		$domain_name $eip_public_ip
 }
-
+function associate_eip(){
+	echo "Associating EIP with $ec2_id"
+	association=$(aws ec2 associate-address \
+		--instance-id $ec2_id --allocation-id $alloc_id) \
+	&& assoc_id=$(echo $association | jq -r '.AssociationId')
+}
+function launch (){
+	allocate_eip && parse_public_ip && configure_route53 \
+	&& launch_instance && wait_for_instance && create_tag "$domain_name-nginx"\
+	&& associate_eip 
+}
 domain_name=$1
-
-launch && wait_for_instance \
-&& create-tags "$domain_name-nginx" \
-&& allocate_eip \
-&& associate_eip \
-&& parse_public_ip\
-&& configure_route53 
+launch
 
 exit 0
