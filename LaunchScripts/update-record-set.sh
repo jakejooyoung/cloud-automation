@@ -34,7 +34,7 @@ function submit_record_change(){
 	 	echo "Trying..."
 		sleep 0.5
 	done
-	printf "\e[?25h ${RESET}\n"
+	printf "\e[?25h ${RESET}"
 	echo "${GREEN}Change id: $change_id${RESET}"
 }
 submit_record_change $1 $2
