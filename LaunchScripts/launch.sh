@@ -29,7 +29,7 @@ function success(){
 	\nEC2 Id     : '$ec2_id'\
 	\nAlloc Id   : '$alloc_id'\
 	\nAssoc Id   : '$assoc_id'\
-	\nEIP zPublic : '$eip_public_ip'\
+	\nEIP Public : '$eip_public_ip'\
 	\nDomain Name: '$domain_name'\
 	\n"
 	#Debug 

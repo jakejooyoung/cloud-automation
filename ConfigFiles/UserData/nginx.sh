@@ -21,8 +21,6 @@ export DOMAIN="domain_placeholder"
 export EMAIL="jakejooyoung@gmail.com"
 export DOMAINS="$DOMAIN"', www.'"$DOMAIN"
 
-#Hello World
-echo "<h1>Hello World</h1>" > /var/www/html/index.html
 #Prepare nginx server block for letsencrypt
 mkdir -p /var/www/letsencrypt/.well-known/acme-challenge/
 chgrp www-data /var/www/letsencrypt/
