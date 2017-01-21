@@ -12,9 +12,9 @@ apt-get update
 apt-get install -y golang
 
 mkdir home/ubuntu/work
-cat >/etc/profile.d/ <<EOL
-export GOPATH=/home/ubuntu/work
-export PATH=$PATH:/work/bin
+cat > ~/.bashrc <<EOL
+export GOPATH="$HOME/work/"
+export PATH=$PATH:$GOPATH/bin
 export GOBIN=/work/bin
 EOL
 mkdir -p /home/ubuntu/work/src/gainsrg.com/coreengine/app
