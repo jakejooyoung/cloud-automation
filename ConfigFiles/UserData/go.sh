@@ -10,15 +10,16 @@ echo END
 add-apt-repository ppa:ubuntu-lxc/lxd-stable
 apt-get update
 apt-get install -y golang
+	
+GOPATH=home/ubuntu/work
+PATH=$PATH:$GOPATH/bin
+mkdir -p $GOPATH/src/bitbucket.org/gainsresearch/goapp
 
-mkdir home/ubuntu/work
-cat > ~/.bashrc <<EOL
-export GOPATH="$HOME/work/"
+cat > home/ubuntu/.bash_aliases <<EOL
+export GOPATH=$HOME/work/
 export PATH=$PATH:$GOPATH/bin
-export GOBIN=/work/bin
+export GOBIN=$HOME/work/bin
 EOL
-mkdir -p /home/ubuntu/work/src/gainsrg.com/coreengine/app
-
 exit 0
  
 " > /etc/rc.local
