@@ -39,9 +39,5 @@ apt-get install -y ruby-full
 npm install -g bower
 npm install -g grunt-cli
 npm install -g --no-optional forever
-
-exit 0
- 
-" > /etc/rc.local
  
 reboot 0
