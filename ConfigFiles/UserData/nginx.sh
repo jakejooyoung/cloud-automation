@@ -39,8 +39,9 @@ ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
 ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
 EOL
 #Configure nginx server block accordingly for SSL
-cd /etc/nginx
-openssl dhparam -out dhparams.pem 2048
+
+export RANDFILE=~/.rnd
+openssl dhparam -out /etc/nginx/dhparams.pem 2048
 (aws s3 cp s3://npgains.nginxconfig/aftercert - | sed -e 's#$DOMAIN#'"$DOMAIN"'#')> /etc/nginx/sites-available/default
 (aws s3 cp s3://npgains.nginxconfig/sslparams - )> /etc/nginx/snippets/ssl-params.conf
 #reload nginx
