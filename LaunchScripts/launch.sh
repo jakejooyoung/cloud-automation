@@ -51,26 +51,23 @@ function launch_instance(){
 		--security-groups nginx-full jkmba-ssh \
 		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh - \
 			| sed "s/domain_placeholder/$domain_name/g")")\
-	&&ec2_id=$(echo $launch_response | 
-		jq -r ".Instances[] | .InstanceId")
+	&&ec2_id=$(echo $launch_response | jq -r ".Instances[] | .InstanceId")
 }
 function create_tag(){
-	aws ec2 create-tags --resources $ec2_id \
-		--tags Key=Name,Value=$1
+	aws ec2 create-tags --resources $ec2_id --tags Key=Name,Value=$1
 }
 function wait_for_instance(){
 	aws ec2 wait instance-running --instance-ids $ec2_id \
-	&& echo "${GREEN}EC2 $ec2_id is running.${RESET}"
+	&&echo "${GREEN}EC2 $ec2_id is running.${RESET}"
 }
 function allocate_eip(){
 	echo 'Allocating EIP...'
 	allocation=$(aws ec2 allocate-address --domain vpc) \
-	&& alloc_id=$(echo $allocation | jq -r '.AllocationId')
+	&&alloc_id=$(echo $allocation | jq -r '.AllocationId')
 }
 function parse_public_ip(){
 	eip_public_ip=$(aws ec2 describe-addresses \
-		--allocation-ids $alloc_id \
-		| jq -r ".Addresses | .[] | .PublicIp") 
+		--allocation-ids $alloc_id | jq -r ".Addresses | .[] | .PublicIp") 
 }
 function configure_route53(){
 	sh $(dirname $0)/configure-route53.sh \
@@ -78,14 +75,13 @@ function configure_route53(){
 }
 function associate_eip(){
 	echo "Associating EIP with $ec2_id"
-	association=$(aws ec2 associate-address \
-		--instance-id $ec2_id --allocation-id $alloc_id) \
-	&& assoc_id=$(echo $association | jq -r '.AssociationId')
+	association=$(aws ec2 associate-address --instance-id $ec2_id --allocation-id $alloc_id) \
+	&&assoc_id=$(echo $association | jq -r '.AssociationId')
 }
 function launch (){
 	allocate_eip && parse_public_ip && configure_route53 \
-	&& launch_instance && wait_for_instance && create_tag "$domain_name-nginx"\
-	&& associate_eip 
+	&&launch_instance && wait_for_instance && create_tag "$domain_name-nginx"\
+	&&associate_eip 
 }
 domain_name=$1
 launch
