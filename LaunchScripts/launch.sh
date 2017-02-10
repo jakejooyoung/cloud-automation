@@ -12,8 +12,7 @@ function missingarg(){
 	exit 1
 }
 function rollback(){
-	sh $(dirname $0)/rollback.sh \
-	$ec2_id $alloc_id $assoc_id $domain_name
+	sh $(dirname $0)/rollback.sh "$domain_name" "$alloc_id" "$ec2_id" "$assoc_id"
 }
 function cleanup(){
 	echo "${RED}Nginx instance launch failed.${RESET}"

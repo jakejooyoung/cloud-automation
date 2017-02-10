@@ -12,16 +12,9 @@ function error_exit(){
 }
 ####
 trap '[ "$?" -eq 0 ] && success || error_exit $LINENO' EXIT
-function rollback(){
-	local ec2=$1
-	local alloc=$2
-	local assoc=$3
-	local dn=$4
+function tearDown(){
+	local alloc=$1 ec2=$2 assoc=$3
 	echo 'Tearing down nginx service...'
-	if [[ -n $assoc ]]; then
-		echo "EIP association found. Dissociating..."
-		aws ec2 disassociate-address --association-id $assoc
-	fi
 	if [[ -n $alloc ]]; then
 		echo "EIP Allocation found. Releasing..."
 		aws ec2 release-address --allocation-id $alloc 
@@ -30,10 +23,15 @@ function rollback(){
 		echo "EC2 instance found. Terminating..."
 		success=$(echo $(aws ec2 terminate-instances --instance-ids $ec2))
 	fi
-	delete_all_zones_and_records_for_domain $dn
+	if [[ -n $assoc ]]; then
+		echo "EIP association found. Dissociating..."
+		aws ec2 disassociate-address --association-id $assoc
+	fi
 }
 function delete_all_zones_and_records_for_domain() {
-	sh $(dirname $0)/delete-all-zones-and-records.sh $1
+	local dn=$1
+	sh $(dirname $0)/delete-all-zones-and-records.sh $dn
 }
-rollback $1 $2 $3 $4
+tearDown $2 $3 $4
+delete_all_zones_and_records_for_domain $1
 exit 0
