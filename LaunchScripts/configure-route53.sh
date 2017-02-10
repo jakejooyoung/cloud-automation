@@ -43,13 +43,13 @@ function prepare_upsert_for_a_and_cname(){
 		$dn $eip_public_ip)	
 }
 function update_record_set(){
-	sh $(dirname $0)/update-record-set.sh $1 $2
+	sh $(dirname $0)/update-record-set.sh $created_hosted_zone $arec_cname_upsert_rqst
 }
 function initialize_zone_with_a_and_cname_records(){
 	delete_all_zones_and_records_for_domain 
 	create_hosted_zone_for_domain
 	prepare_upsert_for_a_and_cname
-	update_record_set $created_hosted_zone $arec_cname_upsert_rqst
+	update_record_set
 	get_hosted_zone_nameservers
 	update_route53_domain_nameservers
 }
