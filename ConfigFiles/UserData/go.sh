@@ -11,9 +11,8 @@ sudo apt-add-repository ppa:ubuntu-lxc/lxd-stable
 apt-get update
 sudo apt-get -y upgrade
 sudo apt-get -y install golang
-cat > /etc/profile.d/two<<EOL
+cat > /etc/profile.d/debug<<EOL
 $HOME
-tell me where is home 
 EOL
 
 export GOPATH=/home/ubuntu/work
