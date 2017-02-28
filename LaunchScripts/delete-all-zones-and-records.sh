@@ -1,8 +1,9 @@
 #!/bin/bash -eo pipefail
-#
-# Creates json for a basic upsert requests
-# for both A_RECORD and CNAME  
-#######################################
+
+# Delete-all-zones-and-records.sh
+# Lists and deletes all zones, while recursively deleting all record-sets for each zone 
+
+# TRAP stuff START ##########################################################
 function missingarg(){
 	echo "${RED}[ERROR] MISSING ARGS${RESET} ${0##*/}:$1"
 	exit 1
@@ -16,7 +17,8 @@ function success(){
 	There are no zones associated with domain."
 	exit 0
 }
-####
+# TRAP stuff END ##################################################################
+
 trap '[[ -z $1 ]] && missingarg' EXIT
 if [[ -z $1 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || err_report $LINENO' EXIT

@@ -1,8 +1,11 @@
 #!/bin/bash -eo pipefail
-#
-# Launch NGINX EC2
-# Alloc&assign ELASTIC IP.
-# Setup ROUTE53
+
+# launch.sh 
+# 1. Launches EC2 and configures NginX 
+# 2. Allocates & assigns Elastic IP for NginX EC2
+# 3. Setups ROUTE53, pointing Domain to Elastic IP
+
+# TRAP stuff START ##########################################################
 export RED=`tput setaf 1`
 export GREEN=`tput setaf 2`
 export YELLOW=`tput setaf 3`
@@ -36,7 +39,8 @@ function success(){
 	# rollback \	
 	# && echo 'Success!'
 }
-#####
+# TRAP stuff END ##################################################################
+
 trap '[[ -z $1 ]] && missingarg $LINENO' EXIT
 if [[ -z $1 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' SIGINT EXIT

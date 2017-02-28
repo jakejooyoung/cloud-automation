@@ -1,8 +1,8 @@
 #!/bin/bash -eo pipefail
-#
-# Creates json for a basic upsert requests
-# for both A_RECORD and CNAME  
-#######################################
+
+# Upserts record set.
+
+# TRAP stuff START ##########################################################
 function missingarg(){
 	echo "${RED}[ERROR] MISSING ARGS${RESET} ${0##*/}:$1"
 	exit 1
@@ -15,10 +15,12 @@ function success(){
 	echo "${GREEN}[SUCCESS]${RESET} ${0##*/}"
 	exit 0
 }	
-####
+# TRAP stuff END #############################################################
+
 trap '[[ -z $1  ||  -z $2 ]] && missingarg' EXIT
 if [[ -z $1 || -z $2 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || err_report $LINENO' EXIT
+
 function submit_record_change(){
 	local zid=$1; 
 	local req=$2; 

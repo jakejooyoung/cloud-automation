@@ -1,6 +1,8 @@
 #!/bin/bash -eo pipefail
-#
+
 # Rollback on Error
+
+# TRAP stuff START ##########################################################
 function success(){
 	echo "${GREEN}[SUCCESS]${RESET} ${0##*/}"
 	echo "${GREEN}$success${RESET}"
@@ -10,8 +12,10 @@ function error_exit(){
 	echo "${RED}[ERROR]${RESET} ${0##*/}:$1"
 	exit 1
 }
-####
+# TRAP stuff END #############################################################
+
 trap '[ "$?" -eq 0 ] && success || error_exit $LINENO' EXIT
+
 function tearDown(){
 	local alloc=$1 ec2=$2 assoc=$3
 	echo 'Tearing down nginx service...'
