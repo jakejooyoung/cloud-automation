@@ -64,7 +64,7 @@ function launch_instance(){
 	launch_response=$(aws ec2 run-instances \
 		--image-id ami-6e165d0e \
 		--count 1 --instance-type t2.micro \
-		--iam-instance-profile Name="ssl-profile" \
+		--iam-instance-profile Name="nginx-launcher" \
 		--key-name FounderKey \
 		--security-groups nginx-full jkmba-ssh \
 		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh - \
