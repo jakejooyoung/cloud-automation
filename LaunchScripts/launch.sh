@@ -1,9 +1,9 @@
 #!/bin/bash -eo pipefail
 
 # launch.sh 
-# 1. Launches EC2 and configures NginX 
-# 2. Allocates & assigns Elastic IP for NginX EC2
-# 3. Setups ROUTE53, pointing Domain to Elastic IP
+# 1. Allocates Elastic IP, gets eip's public IP, then configures Route53 to point domain to public IP of eip
+# 2. Launches EC2 with NginX userdata, waits until its up and running, then tags it
+# 3. Associates newly launched EC2 with allocated Elastic IP.
 
 # TRAP stuff START ##########################################################
 export RED=`tput setaf 1`
@@ -45,25 +45,6 @@ trap '[[ -z $1 ]] && missingarg $LINENO' EXIT
 if [[ -z $1 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' SIGINT EXIT
 
-function launch_instance(){
-	echo "Launching & Configuring Nginx..."
-	launch_response=$(aws ec2 run-instances \
-		--image-id ami-6e165d0e \
-		--count 1 --instance-type t2.micro \
-		--iam-instance-profile Name="ssl-profile" \
-		--key-name FounderKey \
-		--security-groups nginx-full jkmba-ssh \
-		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh - \
-			| sed "s/domain_placeholder/$domain_name/g")")\
-	&&ec2_id=$(echo $launch_response | jq -r ".Instances[] | .InstanceId")
-}
-function create_tag(){
-	aws ec2 create-tags --resources $ec2_id --tags Key=Name,Value=$1
-}
-function wait_for_instance(){
-	aws ec2 wait instance-running --instance-ids $ec2_id \
-	&&echo "${GREEN}EC2 $ec2_id is running.${RESET}"
-}
 function allocate_eip(){
 	echo 'Allocating EIP...'
 	allocation=$(aws ec2 allocate-address --domain vpc) \
@@ -77,6 +58,27 @@ function configure_route53(){
 	sh $(dirname $0)/configure-route53.sh \
 		$domain_name $eip_public_ip
 }
+
+function launch_instance(){
+	echo "Launching & Configuring Nginx..."
+	launch_response=$(aws ec2 run-instances \
+		--image-id ami-6e165d0e \
+		--count 1 --instance-type t2.micro \
+		--iam-instance-profile Name="ssl-profile" \
+		--key-name FounderKey \
+		--security-groups nginx-full jkmba-ssh \
+		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh - \
+			| sed "s/domain_placeholder/$domain_name/g")")\
+	&&ec2_id=$(echo $launch_response | jq -r ".Instances[] | .InstanceId")
+}
+function wait_for_instance(){
+	aws ec2 wait instance-running --instance-ids $ec2_id \
+	&&echo "${GREEN}EC2 $ec2_id is running.${RESET}"
+}
+function create_tag(){
+	aws ec2 create-tags --resources $ec2_id --tags Key=Name,Value=$1
+}
+
 function associate_eip(){
 	echo "Associating EIP with $ec2_id"
 	association=$(aws ec2 associate-address --instance-id $ec2_id --allocation-id $alloc_id) \
