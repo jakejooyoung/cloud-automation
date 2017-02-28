@@ -30,14 +30,15 @@ trap '[[ -z $1 || -z $2 ]] && missingarg' EXIT
 if [[ -z $1 || -z $2 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' EXIT
 
+
+function delete_all_zones_and_records_for_domain() {
+	sh $(dirname $0)/delete-all-zones-and-records.sh $dn
+}
 function create_hosted_zone_for_domain(){
 	echo "Creating a hosted zone for domain"
 	created_hosted_zone=$(aws route53 create-hosted-zone \
 		--name $dn --caller-reference $(date +%Y-%m-%d:%H:%M:%S)\
 		| jq -r '.HostedZone .Id')
-}
-function delete_all_zones_and_records_for_domain() {
-	sh $(dirname $0)/delete-all-zones-and-records.sh $dn
 }
 function prepare_upsert_for_a_and_cname(){
 	# Make A and CNAME record sets rqst in JSON
@@ -48,21 +49,6 @@ function prepare_upsert_for_a_and_cname(){
 function update_record_set(){
 	sh $(dirname $0)/update-record-set.sh $created_hosted_zone $arec_cname_upsert_rqst
 }
-function initialize_zone_with_a_and_cname_records(){
-	delete_all_zones_and_records_for_domain 
-	create_hosted_zone_for_domain
-	prepare_upsert_for_a_and_cname
-	update_record_set
-	get_hosted_zone_nameservers
-	update_route53_domain_nameservers
-}
-# function get_domain_ns_whois(){
-# 	nameservers=$(whois $dn | grep 'Name Server' | head -4 | sed 's@Name Server: @ @g')
-# 	formatted="";
-# 	for i in $nameservers; do formatted+="{\"Name\":\"$i\"}"; done
-# 	formatted="["$(echo $formatted | sed 's@"}{"@"},{"@g')"]"
-# 	echo $formatted
-# }
 function get_hosted_zone_nameservers(){
 	formatted='';
 	ns=$(aws route53 get-hosted-zone \
@@ -72,6 +58,13 @@ function get_hosted_zone_nameservers(){
 	formatted="["$(echo $formatted | sed 's@"}{"@"},{"@g')"]"
 	echo $formatted
 }
+# function get_domain_ns_whois(){
+# 	nameservers=$(whois $dn | grep 'Name Server' | head -4 | sed 's@Name Server: @ @g')
+# 	formatted="";
+# 	for i in $nameservers; do formatted+="{\"Name\":\"$i\"}"; done
+# 	formatted="["$(echo $formatted | sed 's@"}{"@"},{"@g')"]"
+# 	echo $formatted
+# }
 function update_route53_domain_nameservers(){
 	opid=$(aws --region=us-east-1 \
 		route53domains update-domain-nameservers       \
@@ -84,6 +77,14 @@ function update_route53_domain_nameservers(){
 	 	sleep 5
 	 	echo "Waiting for DNS to update..."
 	done
+}
+function initialize_zone_with_a_and_cname_records(){
+	delete_all_zones_and_records_for_domain 
+	create_hosted_zone_for_domain
+	prepare_upsert_for_a_and_cname
+	update_record_set
+	get_hosted_zone_nameservers
+	update_route53_domain_nameservers
 }
 dn=$1; eip_public_ip=$2
 initialize_zone_with_a_and_cname_records $dn $eip_public_ip
