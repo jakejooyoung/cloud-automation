@@ -86,8 +86,7 @@ function update_route53_domain_nameservers(){
 	done
 }
 dn=$1; eip_public_ip=$2
-initialize_zone_with_a_and_cname_records \
-$dn $eip_public_ip
+initialize_zone_with_a_and_cname_records $dn $eip_public_ip
 
 exit 0
 
