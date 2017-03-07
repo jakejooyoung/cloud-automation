@@ -58,9 +58,8 @@ function create_tag(){
 }
 domain_name=$1
 launch_go && wait_for_instance && 
-create_tag "Name" "[$domain_name] Go Server" &&
-create_tag "Domain" "$domain_name" &&
-create_tag "Role" "Web Server" &&
+create_tag Name "$domain_name" &&
+create_tag "Role" "WebServer" &&
 create_tag "Type" "Go" &&
 create_tag "Plan" "Startup"
 
