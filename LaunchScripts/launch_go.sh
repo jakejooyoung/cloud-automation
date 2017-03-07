@@ -61,7 +61,8 @@ launch_go && wait_for_instance &&
 create_tag Name "$domain_name" &&
 create_tag "Role" "WebServer" &&
 create_tag "Type" "Go" &&
-create_tag "Plan" "Startup"
+create_tag "Plan" "Startup" &&
+create_tag "Owner" "npgains"
 
 echo "Launched go instance: $ec2_id"
 exit 0
