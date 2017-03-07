@@ -20,7 +20,7 @@ function missingarg(){
 	exit 1
 }
 function cleanup(){
-	echo "${RED}Nginx instance launch failed.${RESET}"
+	echo "${RED}Go Server instance launch failed.${RESET}"
 	echo "${RED}ERROR]${RESET} ${0##*/}:$1"
 	echo "Rolling back components..."
 	# rollback
@@ -39,7 +39,7 @@ function launch_go(){
 	local presigned=$(aws s3 presign s3://npgains.keys/bitbucket_rsa --expires-in 360 | sed s#'\&'#'\\&'#g)
 	echo $presigned 
 
-	echo "Launching & Configuring Nginx..."
+	echo "Launching & Configuring Go Server..."
 	launch_response=$(aws ec2 run-instances \
 		--image-id ami-6e165d0e \
 		--count 1 --instance-type t2.micro \
@@ -64,5 +64,4 @@ create_tag "Stack" "Go" &&
 create_tag "Plan" "Startup"
 
 echo "Launched go instance: $ec2_id"
-
-
+exit 0
