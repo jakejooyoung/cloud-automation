@@ -55,7 +55,7 @@ cd $MYGO
 git clone git@bitbucket.org:gainsresearch/go.git .
 
 
-chown -R ubuntu:staff $GOPATH
+chown -R ubuntu $GOPATH
 go get github.com/lib/pq
 
 reboot 0
