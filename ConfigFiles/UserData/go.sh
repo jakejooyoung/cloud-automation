@@ -24,6 +24,7 @@ export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 cat > /etc/profile.d/setgoenv.sh <<EOL
 	export GOPATH=/home/ubuntu/work
 	export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+	export GOBIN=$GOPATH/bin
 EOL
 MYGO=$GOPATH/src/bitbucket.org/gainsresearch/go
 mkdir -p $MYGO
@@ -52,7 +53,7 @@ ssh-add /home/ubuntu/.ssh/repo_rsa
 # Pull from git repository or docker image registry.
 cd $MYGO
 git clone git@bitbucket.org:gainsresearch/go.git .
-git co -b gostructure
+
 
 chown -R ubuntu:staff $GOPATH
 go get github.com/lib/pq
