@@ -46,6 +46,7 @@ function launch_go(){
 		--iam-instance-profile Name="go-launcher" \
 		--key-name FounderKey \
 		--security-groups webserver jkmba-ssh \
+		--private-ip-address 172.31.10.1 \
 		--user-data "$(aws s3 cp s3://npgains.userdata/go.sh - | sed "s#PRESIGNED_URL#$presigned#g")")\
 	&&ec2_id=$(echo $launch_response | jq -r ".Instances[] | .InstanceId")
 }
