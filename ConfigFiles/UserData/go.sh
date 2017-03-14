@@ -14,6 +14,7 @@ sudo apt-add-repository ppa:ubuntu-lxc/lxd-stable
 apt-get update
 sudo apt-get -y upgrade
 sudo apt-get -y install golang
+sudo apt-get -y install mercurial
 cat > /etc/profile.d/debug<<EOL
 	$HOME
 EOL
@@ -21,6 +22,7 @@ EOL
 # Prepare GOPATH and working directory 
 export GOPATH=/home/ubuntu/work
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export GOBIN=$GOPATH/bin
 cat > /etc/profile.d/setgoenv.sh <<EOL
 	export GOPATH=/home/ubuntu/work
 	export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
@@ -54,10 +56,12 @@ ssh-add /home/ubuntu/.ssh/repo_rsa
 cd $MYGO
 git clone git@bitbucket.org:gainsresearch/go.git .
 
-chown -R ubuntu /home/ubuntu/work
-go get github.com/lib/pq
-go get -t
+#Install dependencies and run go server
+go get -d ./...
 go install main.go
 go run main.go
+
+#Change ownership of $GOPATH to ubuntu in case we need to changes on go server
+chown -R ubuntu /home/ubuntu/work
 
 reboot 0
