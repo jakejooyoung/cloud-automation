@@ -54,8 +54,10 @@ ssh-add /home/ubuntu/.ssh/repo_rsa
 cd $MYGO
 git clone git@bitbucket.org:gainsresearch/go.git .
 
-
-chown -R ubuntu $GOPATH
+chown -R ubuntu /home/ubuntu/work
 go get github.com/lib/pq
+go get -t
+go install main.go
+go run main.go
 
 reboot 0
