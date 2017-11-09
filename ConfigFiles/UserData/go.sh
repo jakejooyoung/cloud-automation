@@ -7,30 +7,61 @@ echo BEGIN
 date '+%Y-%m-%d %H:%M:%S'
 echo END
 
+# Placeholder variable exchanged for presigned, time-limit enforced access to npgains.keys/ S3 bucket.
+keyurl="PRESIGNED_URL"
+
 sudo apt-add-repository ppa:ubuntu-lxc/lxd-stable
 apt-get update
 sudo apt-get -y upgrade
 sudo apt-get -y install golang
-cat > /etc/profile.d/two<<EOL
-$HOME
-tell me where is home 
+sudo apt-get -y install mercurial
+cat > /etc/profile.d/debug<<EOL
+	$HOME
 EOL
 
+# Prepare GOPATH and working directory 
 export GOPATH=/home/ubuntu/work
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export GOBIN=$GOPATH/bin
 cat > /etc/profile.d/setgoenv.sh <<EOL
-export GOPATH=/home/ubuntu/work
-export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+	export GOPATH=/home/ubuntu/work
+	export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+	export GOBIN=$GOPATH/bin
 EOL
+MYGO=$GOPATH/src/bitbucket.org/gainsresearch/go
+mkdir -p $MYGO
 
-MAINGO=$GOPATH/src/bitbucket.org/gainsresearch/goserver
-mkdir -p $MAINGO/tmpl
-cat > /home/ubuntu/work/src/bitbucket.org/gainsresearch/goserver/tmpl/edit.html <<EOL
-<h1> EDIT NOW </h1>
-EOL
-cat > /home/ubuntu/work/src/bitbucket.org/gainsresearch/goserver/tmpl/view.html <<EOL
-<h1> EDIT TOMORROW </h1>
-EOL
-chown -R ubuntu:staff $GOPATH
-go get github.com/lib/pq
+# # Configure ssh identity
+# cat > /home/ubuntu/.ssh/config <<EOL
+# Host bitbucket.org
+# IdentityFile /home/ubuntu/.ssh/repo_rsa
+# EOL
+
+# Would save bitbucket host fingerprint to ubuntu accessible location.
+# ssh-keyscan -t rsa bitbucket.org >> /home/ubuntu/.ssh/known_hosts
+# Instead we save bitbucket host fingerprint to root accessible location.
+ssh-keyscan -t rsa bitbucket.org >> ~/.ssh/known_hosts
+# Start the ssh-agent in the background.
+eval `ssh-agent -s`
+
+# Download Bitbucket Read-Only Access Key from presigned S3-url 
+curl -o /home/ubuntu/.ssh/repo_rsa $keyurl
+# Change permission of repo_key to restrict access
+chmod 400 /home/ubuntu/.ssh/repo_rsa
+# Load repo key to ssh-agent
+ssh-add /home/ubuntu/.ssh/repo_rsa
+
+# Set up project repo.
+# Pull from git repository or docker image registry.
+cd $MYGO
+git clone git@bitbucket.org:gainsresearch/go.git .
+
+#Install dependencies and run go server
+go get -d ./...
+go install main.go
+go run main.go
+
+#Change ownership of $GOPATH to ubuntu in case we need to changes on go server
+chown -R ubuntu /home/ubuntu/work
+
 reboot 0

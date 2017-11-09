@@ -9,6 +9,8 @@ echo BEGIN
 date '+%Y-%m-%d %H:%M:%S'
 echo END
 
+# Install Deps
+
 apt-get update
 apt-get install -y python-pip python-dev build-essential 
 pip install --upgrade pip 
@@ -21,32 +23,55 @@ export DOMAIN="domain_placeholder"
 export EMAIL="jakejooyoung@gmail.com"
 export DOMAINS="$DOMAIN"', www.'"$DOMAIN"
 
-#Prepare nginx server block for letsencrypt
-mkdir -p /var/www/letsencrypt/.well-known/acme-challenge/
-chgrp www-data /var/www/letsencrypt/
+#############################################################################################################
+
+# Configure basic NginX server to use for getting HTTPS Cert. 
+
+# S3 Get: NginX Configuration ("beforecert")
 (aws s3 cp s3://npgains.nginxconfig/beforecert - | sed 's#$DOMAIN#'"$DOMAIN"'#')\
 	> /etc/nginx/sites-available/default
+
 nginx -t && nginx -s reload
 
-mkdir -p /etc/letsencrypt/
-#Download letsencrypt config file from s3
-(aws s3 cp s3://npgains.letsencrypt/cli.ini - | sed -e 's#$DOMAINS#'"$DOMAINS"'#' -e 's#$EMAIL#'"$EMAIL"'#')> /etc/letsencrypt/cli.ini
-#Request SSL certification from letsencrypt
-letsencrypt certonly -c /etc/letsencrypt/cli.ini
-#Create file to manage cert paths
-cat >/etc/nginx/snippets/ssl-$DOMAIN.conf <<EOL
-ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
-ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
-EOL
-#Configure nginx server block accordingly for SSL
+# Configure HTTPS
 
+# S3 Get: Let's Encrypt Configuration
+mkdir -p /etc/letsencrypt/
+(aws s3 cp s3://npgains.letsencrypt/cli.ini - | sed -e 's#$DOMAINS#'"$DOMAINS"'#' -e 's#$EMAIL#'"$EMAIL"'#')\
+	> /etc/letsencrypt/cli.ini
+
+# Prepare NginX server directory for LE
+mkdir -p /var/www/letsencrypt/.well-known/acme-challenge/
+chgrp www-data /var/www/letsencrypt/
+
+# Start Let's Encrypt
+letsencrypt certonly -c /etc/letsencrypt/cli.ini
+
+# Create file to manage cert paths
+cat >/etc/nginx/snippets/ssl-$DOMAIN.conf <<EOL
+	ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+	ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+EOL
+
+# Configure nginx server block accordingly for SSL
 export RANDFILE=~/.rnd
 openssl dhparam -out /etc/nginx/dhparams.pem 2048
-(aws s3 cp s3://npgains.nginxconfig/aftercert - | sed -e 's#$DOMAIN#'"$DOMAIN"'#')> /etc/nginx/sites-available/default
-(aws s3 cp s3://npgains.nginxconfig/sslparams - )> /etc/nginx/snippets/ssl-params.conf
-#reload nginx
 
+# S3 Get: NginX Configuration ("aftercert")
+(aws s3 cp s3://npgains.nginxconfig/aftercert - | sed -e 's#$DOMAIN#'"$DOMAIN"'#')\
+	> /etc/nginx/sites-available/default
+
+# S3 Get: SSL-param Configuration	
+(aws s3 cp s3://npgains.nginxconfig/sslparams - )\
+	> /etc/nginx/snippets/ssl-params.conf
+
+# S3 Get: Def. HTML file and place in index.html
+(aws s3 cp s3://npgains.views/npg-def.html -)\
+	> /usr/share/nginx/html/index.html
+
+#Reload NginX
 nginx -t && nginx -s reload
+
 "Exiting..."
 date '+%Y-%m-%d %H:%M:%S'
 echo END
