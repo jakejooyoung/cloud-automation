@@ -11,17 +11,19 @@ echo END
 keyurl="PRESIGNED_URL"
 
 sudo apt-add-repository ppa:ubuntu-lxc/lxd-stable
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+
+curl -sL https://deb.nodesource.com/setup_8.x | -E bash -
+
 apt-get update
 apt-get -y upgrade
 
 #Install nodejs
-curl -sL https://deb.nodesource.com/setup_7.x | -E bash -
 apt-get install -y nodejs
 ln -s /usr/bin/nodejs /usr/bin/node;
 
 #Install yarn
-curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 apt-get install yarn
 
 export WORKSPACE=/home/ubuntu/work
@@ -44,8 +46,7 @@ ssh-add /home/ubuntu/.ssh/repo_rsa
 # Set up project repo.
 # Pull from git repository or docker image registry.
 cd $WORKSPACE
-yarn add express
-git clone git clone git@bitbucket.org:gainsresearch/cm-web-server.git .
+git clone git@bitbucket.org:gainsresearch/cm-web-server.git .
 
 #Change ownership of $GOPATH to ubuntu in case we need to changes on go server
 chown -R ubuntu /home/ubuntu/work
