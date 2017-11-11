@@ -48,6 +48,9 @@ ssh-add /home/ubuntu/.ssh/repo_rsa
 cd $WORKSPACE
 git clone git@bitbucket.org:gainsresearch/cm-web-server.git .
 
+#start server
+node app.js
+
 #Change ownership of $GOPATH to ubuntu in case we need to changes on go server
 chown -R ubuntu /home/ubuntu/work
 
