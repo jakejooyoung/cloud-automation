@@ -1,9 +1,9 @@
 #!/bin/bash -eo pipefail
 
-# launch_go.sh 
-# 1. Launches EC2 with Go Server userdata + presigned url for bitbucket repo ssh key
+# launch_web.sh 
+# 1. Launches EC2 with Express Web Server userdata + presigned url for bitbucket repo ssh key
 # 2. Using presigned url, userdata script downloads ssh key
-# 3. Git clone Go server barebone then cleanup all ssh related variables and files
+# 3. Git clone Express Web Server barebone then cleanup all ssh related variables and files
 # 4. Finish up configuration and return success code.
 
 # TRAP stuff START ##########################################################
@@ -20,7 +20,7 @@ function missingarg(){
 	exit 1
 }
 function cleanup(){
-	echo "${RED}Go Server instance launch failed.${RESET}"
+	echo "${RED}Express Web Server instance launch failed.${RESET}"
 	echo "${RED}ERROR]${RESET} ${0##*/}:$1"
 	echo "Rolling back components..."
 	# rollback
@@ -35,11 +35,11 @@ trap '[[ -z $1 ]] && missingarg $LINENO' EXIT
 if [[ -z $1 ]]; then exit 1; fi
 trap '[ "$?" -eq 0 ] && success || cleanup $LINENO' SIGINT EXIT
 
-function launch_go(){
+function launch_web(){
 	local presigned=$(aws s3 presign s3://npgains.keys/bitbucket_rsa --expires-in 360 | sed s#'\&'#'\\&'#g)
 	echo $presigned 
 
-	echo "Launching & Configuring Go Server..."
+	echo "Launching & Configuring Express Web Server..."
 	launch_response=$(aws ec2 run-instances \
 		--image-id ami-6e165d0e \
 		--count 1 --instance-type t2.micro \
@@ -58,12 +58,12 @@ function create_tag(){
 	aws ec2 create-tags --resources $ec2_id --tags Key=$1,Value=$2
 }
 domain_name=$1
-launch_go && wait_for_instance && 
+launch_web && wait_for_instance && 
 create_tag Name "$domain_name" &&
 create_tag "Role" "WebServer" &&
 create_tag "Type" "Express" &&
 create_tag "Plan" "Startup" &&
 create_tag "Owner" "npgains"
 
-echo "Launched go instance: $ec2_id"
+echo "Launched Express Web Server instance: $ec2_id"
 exit 0
