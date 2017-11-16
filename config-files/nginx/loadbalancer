@@ -1,0 +1,11 @@
+upstream api {
+    include /etc/nginx/upstream.conf;
+}
+
+server {
+    listen 80;
+
+    location / {
+        proxy_pass http://api;
+    } 
+}
