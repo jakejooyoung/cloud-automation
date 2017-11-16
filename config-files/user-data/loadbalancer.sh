@@ -26,10 +26,8 @@ apt-get install -y nginx
 (aws s3 cp s3://npgains.nginxconfig/loadbalancer -)\
 	> /etc/nginx/sites-available/default
 
-touch /etc/nginx/upstream.conf
-# S3 Get: SSL-param Configuration	
 (aws s3 cp s3://npgains.nginxconfig/loadbalancer-upstream -)\
-	> /etc/nginx/upstream.conf
+	>> /etc/nginx/upstream.conf
 
 nginx -t && nginx -s reload
 
