@@ -46,7 +46,7 @@ ssh-add /home/ubuntu/.ssh/repo_rsa
 # Set up project repo.
 # Pull from git repository or docker image registry.
 cd $WORKSPACE
-git clone git@bitbucket.org:gainsresearch/cm-web-server.git .
+git clone git@bitbucket.org:gainsresearch/cm-frontend-web-server.git .
 
 #start server
 node app.js
