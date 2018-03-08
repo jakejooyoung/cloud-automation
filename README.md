@@ -12,7 +12,7 @@ This repository launches and configures a cloud infrastructure that's immediatel
 
 ### Company: ###
 
-For more information about the relationship between Nopain Products & Gains Research Group [visit npgains.com](https://npgains.com)
+For more information about NP Gains [visit npgains.com](https://npgains.com)
 
 ### How do I get set up? ###
 
