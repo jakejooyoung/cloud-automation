@@ -1,6 +1,6 @@
 # Core Engine #
 
-Core Engine is a suite of administrative tools that automate repetitive DevOps tasks routinely encountered by Nopain, LLC in launching new products.
+Core Engine is a suite of administrative tools that automate repetitive DevOps tasks routinely encountered by NP Gains, LLC in launching new products.
 
 # Cloud Automation #
 
@@ -33,4 +33,4 @@ For more information about the relationship between Nopain Products & Gains Rese
 
 Jake Kim (Owner): jake@npgains.com
 
-*This repository is developed, owned and maintained by the Gains Research Group and is intended for authorized Nopain, LLC use only.*
+*This repository is developed, owned and maintained by the NP Gains and is intended for authorized Nopain, LLC use only.*
