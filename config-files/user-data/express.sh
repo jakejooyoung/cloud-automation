@@ -58,7 +58,9 @@ yarn global add forever
 
 #start server
 yarn install
-yarn start
+# We need to first configure .env file before running yarn.
+# yarn start
+
 #node app.js
 
 #Change ownership of $GOPATH to ubuntu in case we need to changes on go server
