@@ -54,7 +54,7 @@ ssh-add /home/ubuntu/.ssh/repo_rsa
 # Set up project repo.
 # Pull from git repository or docker image registry.
 cd $MYGO
-git clone git@bitbucket.org:gainsresearch/go.git .
+git clone git@bitbucket.org:npgains/go.git .
 
 #Install dependencies and run go server
 go get -d ./...

@@ -20,6 +20,7 @@ apt-get update
 apt-get -y upgrade
 
 #Install nodejs
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
 apt-get install -y nodejs
 ln -s /usr/bin/nodejs /usr/bin/node;
 
@@ -28,6 +29,9 @@ apt-get install yarn
 
 export WORKSPACE=/home/ubuntu/work
 mkdir -p $WORKSPACE
+
+# Add github to known hosts
+ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 # Would save bitbucket host fingerprint to ubuntu accessible location.
 # ssh-keyscan -t rsa bitbucket.org >> /home/ubuntu/.ssh/known_hosts
@@ -46,10 +50,16 @@ ssh-add /home/ubuntu/.ssh/repo_rsa
 # Set up project repo.
 # Pull from git repository or docker image registry.
 cd $WORKSPACE
-git clone git@bitbucket.org:gainsresearch/cm-frontend-web-server.git .
+git clone git@github.com:jknpg/tweetfeed-api.git .
+#git clone git@bitbucket.org:gainsresearch/cm-frontend-web-server.git .
+
+#Install forever as global dependency
+yarn global add forever
 
 #start server
-node app.js
+yarn install
+yarn start
+#node app.js
 
 #Change ownership of $GOPATH to ubuntu in case we need to changes on go server
 chown -R ubuntu /home/ubuntu/work
