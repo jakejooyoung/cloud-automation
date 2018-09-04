@@ -62,11 +62,12 @@ function configure_route53(){
 function launch_instance(){
 	echo "Launching & Configuring Nginx..."
 	launch_response=$(aws ec2 run-instances \
-		--image-id ami-6e165d0e \
+		--image-id ami-00ca7ffe117e2fe91 \
 		--count 1 --instance-type t2.micro \
-		--iam-instance-profile Name="nginx-launcher" \
+		--iam-instance-profile Name="s3access-profile" \
 		--key-name FounderKey \
-		--security-groups nginx-full jkmba-ssh \
+		--subnet-id subnet-ac7cc7c4 \
+		--security-group jkmba-ssh nginx-full \
 		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh - \
 			| sed "s/domain_placeholder/$domain_name/g")")\
 	&&ec2_id=$(echo $launch_response | jq -r ".Instances[] | .InstanceId")
