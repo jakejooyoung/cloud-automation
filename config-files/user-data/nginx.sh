@@ -13,11 +13,12 @@ echo END
 
 apt-get update
 apt-get install -y python-pip python-dev build-essential 
-pip install --upgrade pip 
+python -m pip uninstall pip && apt install python-pip --reinstall
+pip install uwsgi
 pip install --upgrade virtualenv 
 pip install awscli
 apt-get install -y nginx
-apt-get install -y letsencrypt 
+apt-get install -y letsencrypt
 
 export DOMAIN="domain_placeholder"
 export EMAIL="jakejooyoung@gmail.com"

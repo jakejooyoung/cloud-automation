@@ -65,9 +65,9 @@ function launch_instance(){
 		--image-id ami-00ca7ffe117e2fe91 \
 		--count 1 --instance-type t2.micro \
 		--iam-instance-profile Name="s3access-profile" \
-		--key-name FounderKey \
+		--key-name lboxKey \
 		--subnet-id subnet-ac7cc7c4 \
-		--security-group jkmba-ssh nginx-full \
+		--security-group-ids sg-04bd9c37a134c1b12 sg-0d8526a2c146cbb75 \
 		--user-data "$(aws s3 cp s3://npgains.userdata/nginx.sh - \
 			| sed "s/domain_placeholder/$domain_name/g")")\
 	&&ec2_id=$(echo $launch_response | jq -r ".Instances[] | .InstanceId")
